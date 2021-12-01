@@ -40,7 +40,11 @@ for i in range(cant_act): #0-35 preparar estructura de datos auxiliar: matriz no
         pass
     actividades.append({"numero_act": numero_act, "descripcion": descripcion, "duracion": duracion,"predecesor": predecesor})
 
-cpm(actividades)
+tabla_cpm = cpm(actividades)
+for actividad in tabla_cpm:
+    print(actividad)
+
+calcular_camino_critico(tabla_cpm)
     #print(actividades)
     
 

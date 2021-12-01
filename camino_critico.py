@@ -3,8 +3,9 @@ def cpm(actividades):
     tabla_cpm = crear_tabla_cpm(actividades)
     tabla_sucesor = crear_tabla_sucesor(actividades)
 
-    forward(tabla_cpm, tabla_sucesor, actividades)
-    return
+    tabla_cpm = forward(tabla_cpm, tabla_sucesor, actividades)
+    
+    return tabla_cpm
 
 def crear_tabla_cpm(actividades):
 
@@ -77,4 +78,65 @@ def forward(tabla_cpm, tabla_sucesor, actividades):
         tabla_cpm[nodo['numero_act']]['EF'] = ES + tabla_cpm[nodo['numero_act']]['duracion']
 
     print(tabla_cpm)
+    tabla_cpm = backward(tabla_cpm, actividades, tabla_sucesor)
+    return tabla_cpm
+
+def backward(tabla_cpm, actividades, tabla_sucesor):
+
+    cola = []
+
+    #calculamos la duracion total del proyecto
+    duracion_proyecto = max(tabla_cpm, key=lambda x:x['EF'])['EF']
+
+    #agregamos las actividades finales a la cola
+    for actividad in tabla_cpm:
+        if len(list(filter(lambda x: x['numero_act'] == actividad['numero_act'], tabla_sucesor))) == 0:
+            cola.append(actividad)
+    #actividad_final = list(filter(lambda x: x['EF'] == duracion_proyecto, tabla_cpm))
+    #print("Actividad Final: " + str(actividad_final))
+    #cola = actividad_final
+
+    while len(cola) > 0:
+        nodo = cola.pop(0)
+        
+        if len(list(filter(lambda x: x['numero_act'] == nodo['numero_act'], tabla_sucesor))) == 0:
+            tabla_cpm[nodo['numero_act']]['LF'] = duracion_proyecto
+
+        else:
+            sucesor =  list(filter(lambda x: x['numero_act'] == nodo['numero_act'], tabla_sucesor))
+            LF = duracion_proyecto
+            
+            for suc in sucesor:
+                try:
+                    if tabla_cpm[suc['sucesor']]['LS'] < LF:
+                        LF = tabla_cpm[suc['sucesor']]['LS']
+                except TypeError:
+                    break
+            
+            tabla_cpm[nodo['numero_act']]['LF'] = LF
+
+        tabla_cpm[nodo['numero_act']]['LS'] = tabla_cpm[nodo['numero_act']]['LF'] - tabla_cpm[nodo['numero_act']]['duracion']
+
+        #agregamos los predecesores a la cola
+        for predecesor in actividades[nodo['numero_act']]['predecesor']:
+            cola.append(next(actividad for actividad in tabla_cpm if actividad["numero_act"] == predecesor))
+    
+    tabla_cpm = calcular_holgura(tabla_cpm)
+    return tabla_cpm
+
+def calcular_holgura(tabla_cpm):
+
+    for actividad in tabla_cpm:
+        actividad['holgura'] = actividad['LS'] - actividad['ES']
+    return tabla_cpm
+
+def calcular_camino_critico(tabla_cpm):
+
+    ruta_critica = []
+
+    for actividad in tabla_cpm:
+        if actividad['holgura'] == 0:
+            ruta_critica.append(actividad['actividad'])
+
+    print("Las actividades en la ruta critica son: " + str(ruta_critica))
     return
