@@ -53,15 +53,28 @@ def forward(tabla_cpm, tabla_sucesor, actividades):
     #mientras queden actividades
     while len(cola) > 0:
         nodo = cola.pop(0)
+        print("Evaluando el nodo: " + str(nodo))
 
-
-        #agregamos sus sucesores a la cola
-        #print(tabla_sucesor)
-        #sucesores = []
+        #buscamos cuales son sus sucesores
         sucesores = list(filter(lambda x: x['numero_act'] == nodo['numero_act'], tabla_sucesor))
         print("Sucesores: " + str(sucesores))
 
-        #for sucesor in sucesores:
-            #cola.append(sucesor)
-        
+        #agregamos los sucesores a la cola
+        for sucesor in sucesores:
+            cola.append(next(actividad for actividad in actividades if actividad["numero_act"] == sucesor['sucesor']))
+
+        ES = 0
+        EF = 0
+        #Calculamos el ES buscando el maximo EF de los predecesores
+        if len(nodo['predecesor']) > 0:
+            for pred in nodo['predecesor']:
+                if tabla_cpm[pred]['EF'] > ES:
+                    ES = tabla_cpm[pred]['EF']
+
+        tabla_cpm[nodo['numero_act']]['ES'] = ES
+    
+        #Calculamos el EF sumando la duracion al ES
+        tabla_cpm[nodo['numero_act']]['EF'] = ES + tabla_cpm[nodo['numero_act']]['duracion']
+
+    print(tabla_cpm)
     return
