@@ -3,6 +3,11 @@ from tkinter import messagebox
 from tkinter import ttk
 from time import *
 from tkinter import font
+from camino_critico import*
+
+
+
+
 
 f = open("temp.txt","w+")
 
@@ -15,29 +20,48 @@ def close_new_window(new_window):
 def read():
     f = open("temp.txt","r")
     string = ""
-    for line in f:
-        string = f.readline()
+
+    string = f.readline()
     f.close()
     return string
 
 
-def write_string_on_temp(id, description, duration,predecesor_field, window1, counter):
+
+def write_string_on_temp(id, description, duration,predecesor_field, window1, counter, frame):
     string = read()
     counter = counter + 1
-    string1 = string + "\n" + str(counter) + "," + description.get() + "," + duration.get() + "," + predecesor_field.get() + "/"
+    if predecesor_field.get() == "":
+        predecesor = ""
+    else:
+        predecesor = predecesor_field.get()
+    
+    string1 = string + str(counter) + "," + description.get() + "," + duration.get() + "," + predecesor + ";"
 
     f = open("temp.txt","w+")
     f.write(string1)
     f.close()
     window1.destroy()
-    desition = messagebox.askyesno(message="Desea agregar otra actividad?", title="Mensaje")
+    desition = messagebox.askyesno(message="Desea agregar otra actividad?")
     if desition == True:
-        activity(counter)
+        activity(counter, frame)
     else:
-        messagebox.showinfo(message="Se han agregado las actividades de forma satisfactoria.", tittle = "Mensaje")
+        messagebox.showinfo(message="Se han agregado las actividades de forma satisfactoria.")
 
 
-def activity(counter): 
+
+def get_critical_route():
+    string = read()
+    actividades = []
+
+    a = string.split(";")
+
+    for i in range(0,len(a)-1):
+        actividades.append({"numero_act": int(a[i].split(",")[0]), "descripcion": a[i].split(",")[1], "duracion": a[i].split(",")[2],"predecesor": a[i].split(",")[3]})
+
+    print(actividades)
+    cpm(actividades)
+
+def activity(counter, frame): 
 
     window1 = Tk()
     window1.title("Agregar actividades")
@@ -90,63 +114,9 @@ def activity(counter):
     predecesor_field = Entry(window1, width =10)
     predecesor_field.place(x= 250, y= 168)
 
-    add = Button(window1, text="Agregar actividad", command= lambda: write_string_on_temp(id, description, duration,predecesor_field, window1, counter)).place(x=350, y=350)
+    add = Button(window1, text="Agregar actividad", command= lambda: write_string_on_temp(id, description, duration,predecesor_field, window1, counter, frame)).place(x=350, y=350)
                 
         
-# def new_window():
-#     window1 = Tk()
-#     window1.title("Agregar actividades")
-#     window1.geometry("800x400")
-
-#     message0 = Label(window1, 
-#                     text="Indique un identificador para la actividad:", 
-#                     font=("Arial",14,"bold"),
-#                     justify="center",
-#                     ).place(x=250,y=20)
-
-#     message1 = Label(window1, 
-#                     text="Indique un identificador para la actividad:", 
-#                     font=("Arial",10,),
-#                     justify="right",
-#                     ).place(x=20,y=80)
-    
-#     id = Entry(window1, width= 15)
-#     id.place(x=270,y=80)
-
-#     message2 = Label(window1, 
-#                     text="Ingrese una descripción para la actividad:", 
-#                     font=("Arial",10,),
-#                     justify="right",
-#                     ).place(x=20,y=110)
-
-#     description = Entry(window1, width= 15)
-#     description.place(x=270,y=110)
-
-#     message3 = Label(window1, 
-#                     text="Ingrese la duración de la actividad:", 
-#                     font=("Arial",10,),
-#                     justify="right",
-#                     ).place(x=20,y=140)
-#     duration = Entry(window1, width= 15)
-#     duration.place(x=270,y=140)
-
-#     combobox = ttk.Combobox(window1, width =10)
-#     combobox["state"] = "readonly"
-#     combobox.place(x= 370, y= 138)
-#     combobox["values"] = ("","Días","Semanas","Meses")
-#     combobox.current(0)
-
-#     message4 = Label(window1, 
-#                     text="Ingrese el predecesor: ", 
-#                     font=("Arial",10,),
-#                     justify="right",
-#                     ).place(x=20,y=168)
-
-#     predecesor_field = Entry(window1, width =10)
-#     predecesor_field.place(x= 250, y= 168)
-
-#     temp = False
-#     add = Button(window1, text="Agregar actividad", command= lambda: write_string_on_temp(id, description, duration,combobox,predecesor_field, temp, window1)).place(x=350, y=350)
 
 def main_window_function():
     
@@ -183,7 +153,8 @@ def main_window_function():
     #BOTONES ##############################################################################################################
 
    
-    add_activity = Button(frame, text="Agregar actividades", font=font.Font(size=10), command= lambda: activity(counter)).place(x=350, y=550)
+    add_activity = Button(frame, text="Agregar actividades", font=font.Font(size=10), command= lambda: activity(counter, frame)).place(x=350, y=550)
+    critical_route = Button(frame, text=" Hallar ruta critica", font=font.Font(size=10), command= get_critical_route).place(x=350, y=450)
 
     #LABEL TITULO ##########################################################################################################
     labelTitulo = Label(frame,  #titulo
@@ -237,10 +208,5 @@ def main_window_function():
                         justify="center",)
     labelTiempo.place(x=140,y=340) 
 
-
-
-
-
     main_window.mainloop()
 
-main_window_function()

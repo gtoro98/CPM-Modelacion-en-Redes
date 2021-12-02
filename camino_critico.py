@@ -9,6 +9,7 @@ def cpm(actividades):
 def crear_tabla_cpm(actividades):
 
     tabla_cpm = []
+    
 
     for actividad in actividades:
         tabla_cpm.append({
