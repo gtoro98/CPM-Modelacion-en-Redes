@@ -31,11 +31,11 @@ def write_string_on_temp(id, description, duration,predecesor_field, window1, co
     string = read()
     counter = counter + 1
     if predecesor_field.get() == "":
-        predecesor = ""
+        predecesor = ""    
     else:
         predecesor = predecesor_field.get()
     
-    string1 = string + str(counter) + "," + description.get() + "," + duration.get() + "," + predecesor + ";"
+    string1 = string + str(counter) + "-" + description.get() + "-" + duration.get() + "-" + predecesor + ";"
 
     f = open("temp.txt","w+")
     f.write(string1)
@@ -50,13 +50,23 @@ def write_string_on_temp(id, description, duration,predecesor_field, window1, co
 
 
 def get_critical_route():
+
     string = read()
     actividades = []
 
+
+
     a = string.split(";")
 
+
     for i in range(0,len(a)-1):
-        actividades.append({"numero_act": int(a[i].split(",")[0]), "descripcion": a[i].split(",")[1], "duracion": a[i].split(",")[2],"predecesor": a[i].split(",")[3]})
+       
+        if "," in a[i].split("-")[3]:
+            predecesors = a[i].split("-")[3].split(",")
+            actividades.append({"numero_act": int(a[i].split("-")[0]), "descripcion": a[i].split("-")[1], "duracion": a[i].split("-")[2],"predecesor": predecesors})
+        else:
+            actividades.append({"numero_act": int(a[i].split("-")[0]), "descripcion": a[i].split("-")[1], "duracion": a[i].split("-")[2],"predecesor": a[i].split("-")[3]})
+
 
     print(actividades)
     cpm(actividades)
