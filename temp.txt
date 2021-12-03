@@ -1,0 +1,1 @@
+0-Ceramica-2-;1-Cableado-3-0;2-Tuberias-2-0;3-Calentador-1-1,2;4-Bomba-3-2;5-Jacuzzi-2-3,4;6-Ajustes-2-5;
